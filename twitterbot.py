@@ -1,5 +1,6 @@
 
 import stat
+import geocoder
 from pkg_resources import safe_extra
 import tweepy
 import sys
@@ -37,6 +38,11 @@ def generate_dates(since, until):
 		curr = curr + datetime.timedelta(days=7)
 	print(dates)
 	return dates
+
+def get_county(city_state):
+	location = geocoder.google(city_state)
+	return location.current_result.county
+
 
 def get_tweets(df_location):
 
@@ -103,7 +109,8 @@ def get_tweets(df_location):
 			# print(" ")
 			# print(tweet.user.location)
 			state, city = process_location(tweet.user.location, df_location)
-
+			city_state = city + ', ' + state
+			county = get_county(city_state)
 			------------------------------------------------------------------------------------
 			county1 = list(df_location[(df_location['city'] == city)]['county_name'])
 			county2 = list(df_location[(df_location['state_name'] == state)]['county_name'])
