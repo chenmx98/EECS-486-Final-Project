@@ -1,6 +1,7 @@
 
 import stat
 import geocoder
+import requests
 from pkg_resources import safe_extra
 import tweepy
 import sys
@@ -42,6 +43,13 @@ def generate_dates(since, until):
 def get_county(city_state):
 	location = geocoder.google(city_state)
 	return location.current_result.county
+
+def get_fips(lat, long):
+    url = 'http://data.fcc.gov/api/block/find?format=json&latitude={}&longitude={}'
+    request = url.format(lat, long)
+    response = requests.get(request)
+    data = response.json()
+	return data['Block']['FIPS']
 
 
 def get_tweets(df_location):
