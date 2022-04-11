@@ -46,11 +46,11 @@ def get_county(city_state):
 	return location.current_result.county
 
 def get_fips(lat, long):
-	url = 'http://data.fcc.gov/api/block/find?format=json&latitude={}&longitude={}'
-	request = url.format(lat, long)
-	response = requests.get(request)
-	data = response.json()
-	return data['Block']['FIPS']
+    url = 'http://data.fcc.gov/api/block/find?format=json&latitude={}&longitude={}'
+    request = url.format(lat, long)
+    response = requests.get(request)
+    data = response.json()
+    return data['Block']['FIPS']
 
 
 def get_tweets(df_location):
@@ -67,103 +67,88 @@ def get_tweets(df_location):
 
 
 	#set count to however many tweets you want
+	number_of_tweets = 100
+
+	key = input("Search Keyword:")
+	q = "#" + key
+	a = "political"
+
+
+	csvFile = open('result.csv', 'w')
+	csvWriter = csv.writer(csvFile)
+	fields = ['Time', 'Text', 'City', 'County', 'State']
+	csvWriter.writerow(fields)
 
 	geolocator = Nominatim(user_agent="geoapiExercises")
 
-	f = open("hashtags.txt",'r')
-	key = list(f.readlines())
-	
-	for q in key:
-		print(q)
-		csvFile = open(q+'.csv', 'w')
-		csvWriter = csv.writer(csvFile)
-		fields = ['Time', 'Text', 'City', 'County', 'State']
-		csvWriter.writerow(fields)
-
 	# dates = generate_dates("2019-11-03", "2020-11-03")
-		count = 0
-		#geocode='39.833,-98.58,2000mi'
-		# for tweet in tweepy.Cursor(api.search_full_archive, query=q, label="prod", maxResults=100, fromDate='202011030000', toDate='202011040000').items():
-		for tweet in tweepy.Cursor(api.search_tweets, q=q, count=100,
-							lang="en").items():
-			# if tweet.place != None:
+	count = 0
+	#geocode='39.833,-98.58,2000mi'
+	# for tweet in tweepy.Cursor(api.search_full_archive, query=q, label="prod", maxResults=100, fromDate='202011030000', toDate='202011040000').items():
+	for tweet in tweepy.Cursor(api.search_tweets, q=q, count=100,
+						   lang="en").items():
+		# if tweet.place != None:
+		count+=1
+		
+		city = ""
+		county = ""
+		state = ""
+		# print(tweet.created_at, tweet.text)
+		# print(count)
+		if (tweet.place!=None):
+			coord = tweet.place.bounding_box.coordinates
+			# print(coord)
+			centroid = ((coord[0][0][0]+coord[0][1][0])/2,(coord[0][1][1]+coord[0][2][1])/2)
+			Longitude = str(centroid[0])
+			Latitude = str(centroid[1])
 			
-			city = ""
-			county = ""
-			state = ""
-			country = ""
-			if("RT " in tweet.text):
-				continue
-			# print(tweet.created_at, tweet.text)
-			# print(count)
-
-			if (tweet.place!=None):
-				coord = tweet.place.bounding_box.coordinates
-				# print(coord)
-				centroid = ((coord[0][0][0]+coord[0][1][0])/2,(coord[0][1][1]+coord[0][2][1])/2)
-				Longitude = str(centroid[0])
-				Latitude = str(centroid[1])
-				
-				# print(Latitude+","+Longitude)
-				location = geolocator.reverse(Latitude+","+Longitude)
-				if (location != None):
-					add = location.raw['address']
-					city = add.get('city', '')
-					county = add.get('county', '')
-					state = add.get('state', '')
-					country = add.get('country', '')
-				else:
-					print(str(Latitude)+" "+str(Longitude))
-				if (country == "United States"):
-					csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), city, county, state, country])
-				# print(tweet.full_name)
+			# print(Latitude+","+Longitude)
+			location = geolocator.reverse(Latitude+","+Longitude)
+			add = location.raw['address']
+			city = add.get('city', '')
+			county = add.get('county', '')
+			state = add.get('state', '')
+			country = add.get('country', '')
+			if (country == "United States"):
+				csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), city, county, state])
+			# print(tweet.full_name)
 
 
-			else:
-				# print(" ")
-				# print(tweet.user.location)
-				# print("user_loc")
-				state, city = process_location(tweet.user.location, df_location)
-				city_state = city + ', ' + state
-				# county = get_county(city_state)
+		else:
+			# print(" ")
+			# print(tweet.user.location)
+			state, city = process_location(tweet.user.location, df_location)
+			city_state = city + ', ' + state
+			county = get_county(city_state)
+			# ------------------------------------------------------------------------------------
+			county1 = list(df_location[(df_location['city'] == city)]['county_name'])
+			county2 = list(df_location[(df_location['state_name'] == state)]['county_name'])
+			# ------------------------------------------------------------------------------------
+			
+			# county = add.get('county', '')
+			csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), city, county, state])
 
-				loc = geolocator.geocode(city+','+ state)
-				if (loc != None):
-					lat = loc.latitude
-					lng = loc.longitude
-					location = geolocator.reverse(str(lat)+","+str(lng))
-					if (location != None):
-						add = location.raw['address']
-						county = add.get('county', '')
-						country = add.get('country', '')
+		
+		if (count == 100):
+			break
 
-					else:
-						print(str(lat)+" "+str(lng))
-				
-				# county = add.get('county', '')
-				csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), city, county, state, country])
-			count+=1
-		print(count)	
-			# if (count == 100):
-			# 	break
-
-			# t = preprocess(tweet.text.encode('utf-8'))
-			# cords = tweet.place.bounding_box
-			# l1, l2 = 0, 0
-			# for cord in cords:
-			# 	print(cord[0])
-			# 	exit(1)
-			# csvWriter.writerow([tweet.id, tweet.created_at, tweet.text.encode('utf-8'),] )
+		# t = preprocess(tweet.text.encode('utf-8'))
+		# cords = tweet.place.bounding_box
+		# l1, l2 = 0, 0
+		# for cord in cords:
+		# 	print(cord[0])
+		# 	exit(1)
+		# csvWriter.writerow([tweet.id, tweet.created_at, tweet.text.encode('utf-8'),] )
 
 
-		# for date in dates:
-		#
-		# 	for tweet in tweepy.Cursor(api.search_tweets,q=q,count=100,
-		# 							   lang="en",geocode='39.833,-98.58,2000mi',until=date).items():
-		# 		# if tweet.place != None:
-		# 		count += 1
-		# 		print (tweet.created_at, tweet.text)
-		# 		csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
+	# for date in dates:
+	#
+	# 	for tweet in tweepy.Cursor(api.search_tweets,q=q,count=100,
+	# 							   lang="en",geocode='39.833,-98.58,2000mi',until=date).items():
+	# 		# if tweet.place != None:
+	# 		count += 1
+	# 		print (tweet.created_at, tweet.text)
+	# 		csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
 
 
 def process_location(str, df_location):
