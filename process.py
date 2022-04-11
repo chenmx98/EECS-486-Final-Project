@@ -10,10 +10,11 @@ import pandas as pd
 import datetime
 import preprocess
 import numpy as np
-from geopy.geocoders import Nominatim
+from preprocess_jw import removeSGML, tokenizeText, removeStopwords, stemWords
 
-if __name__ == '__main__':
-    geolocator = Nominatim(user_agent="geoapiExercises")
+
+def process_county():
+
 
     df = pd.read_csv("tweets.csv", usecols = ['Time','Text','City','County','State','Country']) 
     df = df.reset_index()
@@ -96,3 +97,59 @@ if __name__ == '__main__':
         if(pd.isnull(df.loc[i, 'County'])):
             df = df.drop([i])
     df.to_csv('US_tweets_county.csv')
+
+
+
+
+def process_tweets(tweet):
+
+    tweet_token = []
+
+    token_ls = tokenizeText(tweet)
+    nsw_token = removeStopwords(token_ls)
+    punctuations = '''!()-[]{};:'"\,<>./?@$%^&*_~'''
+    for t in range (len(nsw_token)):
+        nsw_token[t] = nsw_token[t].lower()
+        if nsw_token[t].isdigit():
+            nsw_token[t] = ""
+        for l in nsw_token[t]:
+            if (l in punctuations):
+                nsw_token[t] = nsw_token[t].replace(l, "")
+    while("" in nsw_token):
+        nsw_token.remove("")
+
+    tweet_token = nsw_token
+
+    if (nsw_token[-1][0]=='h' and nsw_token[-1][1]=='t' and nsw_token[-1][2]=='t' and nsw_token[-1][3]=='p'):
+        tweet_token = tweet_token[0:-1]
+
+    last_token = ""
+    for i in range (len(tweet_token[-1])):
+        if (tweet_token[-1][i] != 'x'):
+            last_token += tweet_token[-1][i]
+        else:
+            break
+    
+    tweet_token[-1] = last_token
+
+    return tweet_token
+
+
+
+
+if __name__ == '__main__':
+
+    process_county()
+    df = pd.read_csv("US_tweets_county.csv") 
+    count = 0
+    words_county = {}
+    for i in range(len(df)):
+        tweet_token = process_tweets(df.loc[i,'Text'][2:])
+        if df.loc[i,'County'] in words_county:
+            words_county[df.loc[i,'County']] += tweet_token
+        else:
+            words_county[df.loc[i,'County']] = tweet_token
+        # count += 1
+        # if count == 1:
+        #     break
+    print(words_county)
