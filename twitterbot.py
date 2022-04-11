@@ -42,6 +42,7 @@ def generate_dates(since, until):
 
 def get_county(city_state):
 	location = geocoder.google(city_state)
+	print(location)
 	return location.current_result.county
 
 def get_fips(lat, long):
@@ -49,7 +50,7 @@ def get_fips(lat, long):
     request = url.format(lat, long)
     response = requests.get(request)
     data = response.json()
-	return data['Block']['FIPS']
+    return data['Block']['FIPS']
 
 
 def get_tweets(df_location):
@@ -119,10 +120,10 @@ def get_tweets(df_location):
 			state, city = process_location(tweet.user.location, df_location)
 			city_state = city + ', ' + state
 			county = get_county(city_state)
-			------------------------------------------------------------------------------------
+			# ------------------------------------------------------------------------------------
 			county1 = list(df_location[(df_location['city'] == city)]['county_name'])
 			county2 = list(df_location[(df_location['state_name'] == state)]['county_name'])
-			------------------------------------------------------------------------------------
+			# ------------------------------------------------------------------------------------
 			
 			# county = add.get('county', '')
 			csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), city, county, state])
