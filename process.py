@@ -110,8 +110,11 @@ def process_tweets(tweet):
     punctuations = '''!()-[]{};:'"\,<>./?@$%^&*_~'''
     for t in range (len(nsw_token)):
         nsw_token[t] = nsw_token[t].lower()
-        if nsw_token[t].isdigit():
-            nsw_token[t] = ""
+        for l in range(len(nsw_token[t])):
+            # print(nsw_token[t])
+            if (nsw_token[t][l] == '\\'):
+                nsw_token[t] = nsw_token[t][0:l]
+                break
         for l in nsw_token[t]:
             if (l in punctuations):
                 nsw_token[t] = nsw_token[t].replace(l, "")
@@ -149,7 +152,7 @@ if __name__ == '__main__':
             words_county[df.loc[i,'County']] += tweet_token
         else:
             words_county[df.loc[i,'County']] = tweet_token
-        # count += 1
-        # if count == 1:
-        #     break
+        count += 1
+        if count == 9:
+            break
     print(words_county)
