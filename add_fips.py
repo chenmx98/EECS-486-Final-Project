@@ -25,6 +25,10 @@ def add_fips(df):
             county = county[:-7]
             # print(county)
 
+        if county == "District of Columbia":
+            state = "District of Columbia"
+
+
         fips = -1
         if state != "NA":
 
@@ -35,8 +39,7 @@ def add_fips(df):
             df.loc[i, "State_County"] = sc
 
 
-            if state == "District of Columbia":
-                print("DEBUGGING######", sc)
+
 
             try:
                 fips = fips_df.loc[fips_df["STATE_COUNTY"] == sc]["CountyFIPS"].iloc[0]
@@ -48,6 +51,11 @@ def add_fips(df):
                     print("\t Solved by adding city to the end")
                 except:
                     print(fips, sc)
+                    try:
+                        fips = fips = fips_df.loc[fips_df["CountyName"] == county]["CountyFIPS"].iloc[0]
+                        print("\t Solved by omit the state label")
+                    except:
+                        print(fips, county)
         else:
             try:
                 fips = fips_df.loc[fips_df["CountyName"] == county]["CountyFIPS"].iloc[0]
@@ -55,7 +63,7 @@ def add_fips(df):
                 print(fips, county)
                 try:
                     county += " city"
-                    fips = fips_df.loc[fips_df["STATE_COUNTY"] == county]["CountyFIPS"].iloc[0]
+                    fips = fips_df.loc[fips_df["CountyName"] == county]["CountyFIPS"].iloc[0]
                     print("\t Solved by adding city to the end")
                 except:
                     print(fips, county)
