@@ -11,6 +11,7 @@ import datetime
 import preprocess
 import numpy as np
 from preprocess_jw import removeSGML, tokenizeText, removeStopwords, stemWords
+import json
 
 
 def process_county():
@@ -143,20 +144,26 @@ def process_tweets(tweet):
 
 if __name__ == '__main__':
 
-    process_county()
-    df = pd.read_csv("US_tweets_county.csv") 
+    # process_county()
+    df = pd.read_csv("County_with_fips.csv") 
     count = 0
     words_county = {}
     for i in range(len(df)):
         tweet_token = process_tweets(df.loc[i,'Text'][2:])
         if df.loc[i,'County'] in words_county:
-            words_county[df.loc[i,'County']] += tweet_token
+            words_county[(df.loc[i,'County'],df.loc[i,'FIPS'])] += tweet_token
         else:
-            words_county[df.loc[i,'County']] = tweet_token
+            words_county[(df.loc[i,'County'],df.loc[i,'FIPS'])] = tweet_token
         # count += 1
         # if count == 9:
         #     break
-    print(words_county)
+    
+    # with open('token_with_fip.txt', 'w') as convert_file:
+    #     convert_file.write(json.dumps(words_county))
+    with open("token_with_fip.txt", 'w') as f: 
+        for key, value in words_county.items(): 
+            f.write('%s:%s\n' % (key, value))
+    
 
     
     # data = pd.read_csv("US_tweets_county.csv")

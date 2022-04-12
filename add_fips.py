@@ -94,6 +94,6 @@ if __name__ == "__main__":
     # df.to_csv("County_with_fips.csv")
     df = pd.read_csv("County_with_fips.csv")
     df = group_by_fips(df)
-
+    print(df[0])
     df = clean_text(df)
     df.to_csv("text_group_by_fips.csv")
