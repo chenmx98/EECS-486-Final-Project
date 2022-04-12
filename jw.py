@@ -102,7 +102,7 @@ def process_tweets(tweet):
 
     token_ls = tokenizeText(tweet)
     nsw_token = removeStopwords(token_ls)
-    punctuations = '''!()-[]{};:'"\,<>./?@$%^&*_~'''
+    punctuations = '''#!()-[]{};:'"\,<>./?@$%^&*_~'''
     for t in range(len(nsw_token)):
         nsw_token[t] = nsw_token[t].lower()
         if nsw_token[t].isdigit():

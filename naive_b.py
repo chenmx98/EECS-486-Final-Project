@@ -2,8 +2,12 @@
 import sys
 import os
 import math
+import pandas as pd
+from jw import process_tweets
+from evaluation import process_validation
 from preprocess import tokenizeText, removeSGML
 folder_name = ""
+train_folder_name = ""
 
 # a. Function that trains a Naive Bayes classifier:
 # name: trainNaiveBayes;
@@ -13,54 +17,55 @@ folder_name = ""
 # output: any other parameters required (e.g., vocabulary size).
 def trainNaiveBayes(file_path):
     global folder_name
+    global train_folder_name
     # fake, true, total
     class_probability = [0,0,0]
     word_occurance = {}
-    word_occurance_fake = {}
-    word_occurance_true = {}
-    word_conditional_fake = {}
-    word_conditional_true = {}
+    word_occurance_dem = {}
+    word_occurance_rep = {}
+    word_conditional_dem = {}
+    word_conditional_rep = {}
     for file in file_path:
-        with open(folder_name + file, encoding="ISO-8859-1") as infile:
+        with open(train_folder_name + '/' + file, encoding="ISO-8859-1") as infile:
         # with open(folder_name + file, encoding='utf8', errors='ignore') as infile:
-            if file[:4] == "fake":
+            if file[:3] == "Dem":
                 class_probability[0] += 1
-            if file[:4] == "true":
+            if file[:3] == "Rep":
                 class_probability[1] += 1
             class_probability[2] += 1
             Lines = infile.readlines()
-            Lines = removeSGML(Lines)
-            after_process = tokenizeText(Lines)
-            for word in after_process:
-                if word not in word_occurance:
-                    word_occurance[word] = 1
-                else:
-                    word_occurance[word] += 1
-                if file[:4] == "fake":
-                    if word not in word_occurance_fake:
-                        word_occurance_fake[word] = 1
+            for w in Lines:
+                ww = w.split()
+                for word in ww:
+                    if word not in word_occurance:
+                        word_occurance[word] = 1
                     else:
-                        word_occurance_fake[word] += 1
-                if file[:4] == "true":
-                    if word not in word_occurance_true:
-                        word_occurance_true[word] = 1
-                    else:
-                        word_occurance_true[word] += 1
+                        word_occurance[word] += 1
+                    if file[:3] == "Dem":
+                        if word not in word_occurance_dem:
+                            word_occurance_dem[word] = 1
+                        else:
+                            word_occurance_dem[word] += 1
+                    if file[:3] == "Rep":
+                        if word not in word_occurance_rep:
+                            word_occurance_rep[word] = 1
+                        else:
+                            word_occurance_rep[word] += 1
     class_probability[0] = math.log(class_probability[0] / class_probability[2])
     class_probability[1] = math.log(class_probability[1] / class_probability[2])
     vocab_size = len(word_occurance)
     for word in word_occurance:
-        if word in word_occurance_fake:
-            word_fake = word_occurance_fake[word]
+        if word in word_occurance_dem:
+            word_dem = word_occurance_dem[word]
         else:
-            word_fake = 0
-        word_conditional_fake[word] = math.log((word_fake + 1) / (len(word_occurance_fake) + vocab_size))
-        if word in word_occurance_true:
-            word_true = word_occurance_true[word]
+            word_dem = 0
+        word_conditional_dem[word] = math.log((word_dem + 1) / (len(word_occurance_dem) + vocab_size))
+        if word in word_occurance_rep:
+            word_rep = word_occurance_rep[word]
         else:
-            word_true = 0
-        word_conditional_true[word] = math.log((word_true + 1) / (len(word_occurance_true) + vocab_size))
-    return class_probability, word_conditional_fake, word_conditional_true, vocab_size, len(word_occurance_fake), len(word_occurance_true)
+            word_rep = 0
+        word_conditional_rep[word] = math.log((word_rep + 1) / (len(word_occurance_rep) + vocab_size))
+    return class_probability, word_conditional_dem, word_conditional_rep, vocab_size, len(word_occurance_dem), len(word_occurance_rep)
 
 # Function that predicts the class (true or fake) of a previously unseen document:
 # name: testNaiveBayes;
@@ -69,59 +74,72 @@ def trainNaiveBayes(file_path):
 # output: predicted class (the string “true” or the string “fake”. You can assume these to be the
 # only classes to be predicted)
 # The tokens that are not in the vocabulary should have smoothing applied.
-def testNaiveBayes(test_file, class_probability, word_conditional_fake, word_conditional_true, vocab_size, lf, lt):
+def testNaiveBayes(word_county, class_probability, word_conditional_dem, word_conditional_rep, vocab_size, lf, lt):
     global folder_name
-    true_prob = class_probability[1]
-    fake_prob = class_probability[0]
-    with open(folder_name + test_file, encoding="ISO-8859-1") as infile:
-        Lines = infile.readlines()
-        Lines = removeSGML(Lines)
-        after_process = tokenizeText(Lines)
-        for word in after_process:
-            if word in word_conditional_fake:
-                fake_prob += word_conditional_fake[word]
+    rep_prob = class_probability[1]
+    dem_prob = class_probability[0]
+    print(len(word_conditional_dem))
+    dem_or_rep = {}
+    for county in word_county:
+        for word in county:
+            if word in word_conditional_dem:
+
+                dem_prob += word_conditional_dem[word]
             else:
-                fake_prob += math.log(1 / (lf + vocab_size))
-            if word in word_conditional_true:
-                true_prob += word_conditional_true[word]
+                dem_prob += math.log(1 / (lf + vocab_size))
+            if word in word_conditional_rep:
+                rep_prob += word_conditional_rep[word]
             else:
-                true_prob += math.log(1 / (lt + vocab_size))
-
-    if fake_prob > true_prob:
-        return "fake"
-    else:
-        return "true"
-
-
+                rep_prob += math.log(1 / (lt + vocab_size))
+        # print(dem_prob)
+        # print(rep_prob)
+        if dem_prob > rep_prob:
+            dem_or_rep[county] = "DEMOCRAT"
+        else:
+            dem_or_rep[county] = "REPUBLICAN"
+    return dem_or_rep
 
 
 
 
 def main():
     global folder_name
-    folder_name = sys.argv[1]
-    all_file = os.listdir(folder_name)
+    global train_folder_name
+    # folder_name = sys.argv[1]
+    train_folder_name = "Debate2020"
+    all_train_file = os.listdir(train_folder_name)
     accuracy = 0
+    class_probability, word_conditional_dem, word_conditional_rep, vocab_size, lf, lt = trainNaiveBayes(all_train_file)
+    df = pd.read_csv("US_tweets_county.csv")
+    # count = 0
+    words_county = {}
+    for i in range(len(df)):
+        tweet_token = process_tweets(df.loc[i, 'Text'][2:])
+        if df.loc[i, 'County'] in words_county:
+            words_county[df.loc[i, 'County']] += tweet_token
+        else:
+            words_county[df.loc[i, 'County']] = tweet_token
+    # print(words_county)
+    result = testNaiveBayes(words_county, class_probability, word_conditional_dem, word_conditional_rep, vocab_size, lf,
+                            lt)
+    # print(result)
+    print(process_validation(result))
 
-    with open("naivebayes.output." + folder_name[:-1], 'w') as out:
-        for i in range(len(all_file)):
-            test_file = all_file[i]
-            train_file = all_file[:i] + all_file[i + 1:]
-            class_probability, word_conditional_fake, word_conditional_true, vocab_size, lf, lt = trainNaiveBayes(train_file)
-            result = testNaiveBayes(test_file, class_probability, word_conditional_fake, word_conditional_true, vocab_size, lf, lt)
-            wcf = dict(sorted(word_conditional_fake.items(), key=lambda x: x[1], reverse=True)[:10])
-            wct = dict(sorted(word_conditional_true.items(), key=lambda x: x[1], reverse=True)[:10])
 
-            # for x, y in wcf.items():
-            #     print(x + " " + str(y))
-            # print("true")
-            # for x, y in wct.items():
-            #     print(x + " " + str(y))
 
-            if result == test_file[:4]:
-                accuracy += 1
-            out.write(test_file + " " + result + '\n')
-    print(accuracy / len(all_file))
+    # for i in range(len(all_file)):
+    #     test_file = all_file[i]
+    #     train_file = all_file[:i] + all_file[i + 1:]
+    #     class_probability, word_conditional_fake, word_conditional_true, vocab_size, lf, lt = trainNaiveBayes(train_file)
+    #     result = testNaiveBayes(test_file, class_probability, word_conditional_fake, word_conditional_true, vocab_size, lf, lt)
+    #     wcf = dict(sorted(word_conditional_fake.items(), key=lambda x: x[1], reverse=True)[:10])
+    #     wct = dict(sorted(word_conditional_true.items(), key=lambda x: x[1], reverse=True)[:10])
+    #
+    #
+    #         if result == test_file[:4]:
+    #             accuracy += 1
+    #
+    # print(accuracy / len(all_file))
 
 
 
