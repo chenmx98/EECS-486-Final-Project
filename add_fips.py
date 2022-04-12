@@ -1,6 +1,7 @@
 import sys
 import csv
 import pandas as pd
+import preprocess
 
 
 def add_fips(df):
@@ -77,10 +78,22 @@ def group_by_fips(df):
     df = df.groupby(['FIPS'])['Text'].apply(' '.join)
     return df
 
+def clean_text(df):
+    df["Clean Text"] = ""
+    for i in range(len(df)):
+        text = df.loc[i, "Text"]
+        print(text)
+        df.loc[i,"Clean Text"] = preprocess(df.loc[i, "Text"])
+
+    return df
+
+
 if __name__ == "__main__":
-    df = pd.read_csv("US_tweets_county.csv")
-    df = add_fips(df)
-    df = group_by_fips(df)
+    # df = pd.read_csv("US_tweets_county.csv")
+    # df = add_fips(df)
     # df.to_csv("County_with_fips.csv")
+    df = pd.read_csv("County_with_fips.csv")
+    df = group_by_fips(df)
+
+    df = clean_text(df)
     df.to_csv("text_group_by_fips.csv")
-    
