@@ -152,7 +152,13 @@ if __name__ == '__main__':
             words_county[df.loc[i,'County']] += tweet_token
         else:
             words_county[df.loc[i,'County']] = tweet_token
-        count += 1
-        if count == 9:
-            break
+        # count += 1
+        # if count == 9:
+        #     break
     print(words_county)
+
+    
+    # data = pd.read_csv("US_tweets_county.csv")
+    # data = data.drop(['index'], axis=1)
+    # data = data.drop(['indexx'], axis=1)
+    # data.to_csv('US_tweets_county.csv')
