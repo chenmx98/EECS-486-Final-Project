@@ -72,8 +72,15 @@ def add_fips(df):
 
     return df
 
+
+def group_by_fips(df):
+    df = df.groupby(['FIPS'])['Text'].apply(' '.join)
+    return df
+
 if __name__ == "__main__":
     df = pd.read_csv("US_tweets_county.csv")
     df = add_fips(df)
-
-    df.to_csv("County_with_fips.csv")
+    df = group_by_fips(df)
+    # df.to_csv("County_with_fips.csv")
+    df.to_csv("text_group_by_fips.csv")
+    
