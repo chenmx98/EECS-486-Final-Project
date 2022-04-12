@@ -1,4 +1,55 @@
-"""
+Skip
+to
+content
+Search or jump
+to…
+Pull
+requests
+Issues
+Marketplace
+Explore
+
+
+@Ryanchou24
+
+
+chenmx98
+/
+EECS - 486 - Final - Project
+Public
+Code
+Issues
+Pull
+requests
+Actions
+Projects
+Wiki
+Security
+Insights
+EECS - 486 - Final - Project / preprocess_jw.py
+
+
+@ginnyjw
+
+
+ginnyjw
+All
+preprocess
+Latest
+commit
+d7d6c2a
+6
+hours
+ago
+History
+1
+contributor
+495
+lines(420
+sloc)  15.7
+KB
+
+""" 
 Jenna Wang
 Unique name: ginnyjw
 """
@@ -17,7 +68,6 @@ class PorterStemmer:
         b[k0+1] ... ending at b[k]. In fact k0 = 0 in this demo program. k is
         readjusted downwards as the stemming progresses. Zero termination is
         not in fact used in the algorithm.
-
         Note that only lower case sequences are stemmed. Forcing to lower case
         should be done before stem(...) is called.
         """
@@ -42,7 +92,6 @@ class PorterStemmer:
         """m() measures the number of consonant sequences between k0 and j.
         if c is a consonant sequence and v a vowel sequence, and <..>
         indicates arbitrary presence,
-
            <c><v>       gives 0
            <c>vc<v>     gives 1
            <c>vcvc<v>   gives 2
@@ -94,7 +143,6 @@ class PorterStemmer:
         """cvc(i) is TRUE <=> i-2,i-1,i has the form consonant - vowel - consonant
         and also if the second c is not w,x or y. this is used when trying to
         restore an e at the end of a short  e.g.
-
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
@@ -130,23 +178,19 @@ class PorterStemmer:
 
     def step1ab(self):
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
-
            caresses  ->  caress
            ponies    ->  poni
            ties      ->  ti
            caress    ->  caress
            cats      ->  cat
-
            feed      ->  feed
            agreed    ->  agree
            disabled  ->  disable
-
            matting   ->  mat
            mating    ->  mate
            meeting   ->  meet
            milling   ->  mill
            messing   ->  mess
-
            meetings  ->  meet
         """
         if self.b[self.k] == 's':
