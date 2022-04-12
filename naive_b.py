@@ -78,7 +78,7 @@ def testNaiveBayes(word_county, class_probability, word_conditional_dem, word_co
     global folder_name
     rep_prob = class_probability[1]
     dem_prob = class_probability[0]
-    print(len(word_conditional_dem))
+    # print(len(word_conditional_dem))
     dem_or_rep = {}
     for county in word_county:
         for word in county:
@@ -110,16 +110,24 @@ def main():
     all_train_file = os.listdir(train_folder_name)
     accuracy = 0
     class_probability, word_conditional_dem, word_conditional_rep, vocab_size, lf, lt = trainNaiveBayes(all_train_file)
-    df = pd.read_csv("US_tweets_county.csv")
-    # count = 0
+    # df = pd.read_csv("US_tweets_county.csv")
+    # # count = 0
+    # words_county = {}
+    # for i in range(len(df)):
+    #     tweet_token = process_tweets(df.loc[i, 'Text'][2:])
+    #     if df.loc[i, 'County'] in words_county:
+    #         words_county[df.loc[i, 'County']] += tweet_token
+    #     else:
+    #         words_county[df.loc[i, 'County']] = tweet_token
+    # # print(words_county)
     words_county = {}
-    for i in range(len(df)):
-        tweet_token = process_tweets(df.loc[i, 'Text'][2:])
-        if df.loc[i, 'County'] in words_county:
-            words_county[df.loc[i, 'County']] += tweet_token
-        else:
-            words_county[df.loc[i, 'County']] = tweet_token
-    # print(words_county)
+    with open("token_with_fip.txt") as input:
+        lines = input.readlines()
+        for line in lines:
+            line = line.rstrip()
+            line = line.split()
+            line[0] = line[0][:-2]
+            words_county[line[0]] = line[1:]
     result = testNaiveBayes(words_county, class_probability, word_conditional_dem, word_conditional_rep, vocab_size, lf,
                             lt)
     # print(result)
