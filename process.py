@@ -143,19 +143,19 @@ def process_tweets(tweet):
 
 
 if __name__ == '__main__':
-    dict = {}
+    ls = []
     df = pd.read_csv('County_with_fips.csv')
     for i in range(len(df)):
         tweet_token = process_tweets(df.loc[i,'Text'][2:])
         sentence = ""
         for x in tweet_token:
             sentence += x + ' '
-        dict[df.loc[i,'FIPS']] = (sentence)
+        ls.append((df.loc[i,'FIPS'],sentence))
     
     with open('sentence_fip.csv', 'w') as csv_file:  
         writer = csv.writer(csv_file)
-        for key, value in dict.items():
-            writer.writerow([key, value])
+        for i in ls:
+            writer.writerow(i)
 
 
 
