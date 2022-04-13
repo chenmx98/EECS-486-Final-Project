@@ -20,20 +20,13 @@ def read_text_file(file_path):
     return ts
   
 def process_ts(ts):
-    dem_ts = []
-    rep_ts = []
+
     dem_words = []
     rep_words = []
-    for i in ts:
         # print(i[0])
-        if (i[0] == "H" or i[0] == "B"):
-            dem_ts.append(i)
-        elif(i[0] == "P" or i[0] == "T"):
-            rep_ts.append(i)
-    
 
-    for text in dem_ts:
-        token_ls = tokenizeText(text)
+    if (ts[0:4] == "HARR" or ts[0:4] == "BIDE"):
+        token_ls = tokenizeText(ts)
         nsw_token = removeStopwords(token_ls)
         punctuations = '''!()-[]{};:'"\,<>./?@$%^&*_~-'''
         for t in range (len(nsw_token)):
@@ -49,9 +42,10 @@ def process_ts(ts):
         while("" in nsw_token):
             nsw_token.remove("")
         dem_words += nsw_token
+        return ("Democrat", dem_words)
 
-    for text in rep_ts:
-        token_ls = tokenizeText(text)
+    elif(ts[0:4] == "PENC" or ts[0:4] == "TRUM"):
+        token_ls = tokenizeText(ts)
         nsw_token = removeStopwords(token_ls)
         punctuations = '''!()-[]{};:'"\,<>./?@$%^&*_~'''
         for t in range (len(nsw_token)):
@@ -67,8 +61,10 @@ def process_ts(ts):
         while("" in nsw_token):
             nsw_token.remove("")
         rep_words += nsw_token
-
-    return dem_words, rep_words
+        return ("Republic", rep_words)
+    else:
+        return ("MOD", "")
+    
 
 
 
@@ -76,8 +72,7 @@ if __name__ == '__main__':
 
     path = "/Users/jennawang/Desktop/EECS486/project/EECS-486-Final-Project/debate2020"
     os.chdir(path)
-    democrat = []
-    republic = []
+    ls = []
     # iterate through all file
     count = 0
     for file in os.listdir():
@@ -86,17 +81,25 @@ if __name__ == '__main__':
             file_path = f"{path}/{file}"
             # print(file_path)
             # call read text file function
-            dem, rep = process_ts(read_text_file(file_path))
-            democrat += dem
-            republic += rep
-        # count += 1
-        # if (count == 1):
-        #     break
-    # print(democrat)
-    # print(republic)
-    dem_file = open("dem_terms.txt","w")#write mode
-    for i in democrat:
-        dem_file.write(i+' ')
-    rep_file = open("rep_terms.txt","w")#write mode
-    for i in republic:
-        rep_file.write(i+' ')
+            full_text = read_text_file(file_path)
+            full_text = full_text[2:]
+            for i in full_text:
+                tuple = process_ts(i)
+                if (tuple[0]=="MOD"):
+                    continue
+                count+=1
+            # print(tuple)
+                ls.append(tuple)
+            
+
+
+    with open("party_transcript.txt", 'w') as csvfile: 
+    # creating a csv writer object 
+        csvwriter = csv.writer(csvfile) 
+        
+    # writing the fields 
+        csvwriter.writerow(['Party', 'Text']) 
+        
+    # writing the data rows 
+        csvwriter.writerows(ls)
+
