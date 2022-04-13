@@ -3,7 +3,7 @@ import plotly.figure_factory as ff
 import numpy as np
 import pandas as pd
 
-df_sample = pd.read_csv('predicted_result.csv')
+df_sample = pd.read_csv('data/result/.csv')
 df_sample['State FIPS Code'] = df_sample['State FIPS Code'].apply(lambda x: str(x).zfill(2))
 df_sample['County FIPS Code'] = df_sample['County FIPS Code'].apply(lambda x: str(x).zfill(3))
 df_sample['FIPS'] = df_sample['State FIPS Code'] + df_sample['County FIPS Code']

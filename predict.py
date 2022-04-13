@@ -2,11 +2,13 @@ import pandas as pd
 import numpy as np
 import sklearn
 import json
+import csv
 import operator
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn import model_selection
 from sklearn.preprocessing import LabelEncoder
 from sklearn import svm
+from tqdm import tqdm
 
 def process_election_result():
     filepath = "data/train/countypres_2000-2020.csv"
@@ -34,15 +36,15 @@ def train_svm():
 
     # print(np.array(dem_text).shape)
 
-    dem_arr = np.vstack((np.array(dem_text), np.zeros_like(np.array(dem_text))))
-    rep_arr = np.vstack((np.array(rep_text), np.ones_like(np.array(rep_text))))
+    dem_arr = np.vstack((np.array(dem_text), np.zeros_like(np.array(dem_text,dtype=np.int))))
+    rep_arr = np.vstack((np.array(rep_text), np.ones_like(np.array(rep_text,dtype=np.int))))
     train_list = np.hstack((dem_arr, rep_arr))
 
     print(train_list.shape)
 
     Train_X = train_list[0]
     Train_Y = train_list[1]
-
+    print(Train_X,Train_Y)
     Tfidf_vect = TfidfVectorizer()
     Tfidf_vect.fit(Train_X)
 
@@ -61,12 +63,31 @@ def train_svm():
 def predict(clf,vectorizer, test_str):
     print("Predicting")
     Test_X = vectorizer.transform(test_str)
-    print(Test_X.shape)
+    # print(Test_X.shape)
     res = clf.predict(Test_X)
-    return res
+    print(res.tolist())
+    res_score = np.linalg.norm(np.array(res))/np.linalg.norm(np.ones_like(res))
+    return res_score
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    clf, v = train_svm()
+
+    testfile = open('token_with_fip.txt', "r")
+
+    f = open('data/result/pred_SVM_result.csv', 'w', encoding='UTF8')
+    writer = csv.writer(f)
+
+    print("Predicting")
+
+    for line in tqdm(testfile.readlines()):
+        test_arr = line.split(" ")
+        fips = test_arr[0]
+        test_arr.pop(0)
+        res = [fips, predict(clf,v,test_arr)]
+        writer.writerow(res)
+
+    # for i in testdict.keys():
 
 
 
