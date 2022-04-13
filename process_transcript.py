@@ -20,7 +20,6 @@ def read_text_file(file_path):
     return ts
   
 def process_ts(ts):
-
     dem_words = []
     rep_words = []
         # print(i[0])
@@ -42,7 +41,7 @@ def process_ts(ts):
         while("" in nsw_token):
             nsw_token.remove("")
         dem_words += nsw_token
-        return ("Democrat", dem_words)
+        return ("Democrat", dem_words[1:])
 
     elif(ts[0:4] == "PENC" or ts[0:4] == "TRUM"):
         token_ls = tokenizeText(ts)
@@ -61,7 +60,7 @@ def process_ts(ts):
         while("" in nsw_token):
             nsw_token.remove("")
         rep_words += nsw_token
-        return ("Republic", rep_words)
+        return ("Republic", rep_words[1:])
     else:
         return ("MOD", "")
     
