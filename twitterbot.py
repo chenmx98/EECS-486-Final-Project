@@ -117,20 +117,30 @@ def get_tweets(df_location):
 		else:
 			# print(" ")
 			# print(tweet.user.location)
+			# print("user_loc")
 			state, city = process_location(tweet.user.location, df_location)
 			city_state = city + ', ' + state
-			county = get_county(city_state)
-			# ------------------------------------------------------------------------------------
-			county1 = list(df_location[(df_location['city'] == city)]['county_name'])
-			county2 = list(df_location[(df_location['state_name'] == state)]['county_name'])
-			# ------------------------------------------------------------------------------------
+			# county = get_county(city_state)
+
+			loc = geolocator.geocode(city+','+ state)
+			if (loc != None):
+				lat = loc.latitude
+				lng = loc.longitude
+				location = geolocator.reverse(str(lat)+","+str(lng))
+				if (location != None):
+					add = location.raw['address']
+					county = add.get('county', '')
+					country = add.get('country', '')
+
+				else:
+					print(str(lat)+" "+str(lng))
 			
 			# county = add.get('county', '')
 			csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'), city, county, state])
 
 		
-		if (count == 100):
-			break
+		# if (count == 100):
+		# 	break
 
 		# t = preprocess(tweet.text.encode('utf-8'))
 		# cords = tweet.place.bounding_box
