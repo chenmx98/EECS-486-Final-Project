@@ -29,25 +29,39 @@ def process_election_result():
 def train_svm():
     dem_text = open("data/train/dem_terms.txt",'r').read().split(" ")
     rep_text = open("data/train/rep_terms.txt",'r').read().split(" ")
-    df = pd.DataFrame(columns=["party", "terms"], index=['dem', 'rep'])
-    df.loc["dem"] = pd.Series({"party":"dem","terms": dem_text})
-    df.loc["rep"] = pd.Series({"party":"rep","terms": rep_text})
-    Train_X = df['terms']
-    Train_Y = df['party']
-    Encoder = LabelEncoder()
-    Encoder.fit(Train_Y)
-    Train_Y = Encoder.transform(Train_Y)
-    # Tfidf_vect = TfidfVectorizer(max_features=5000)
-    # Tfidf_vect.fit(df['terms'])
-    # Train_X_Tfidf = Tfidf_vect.transform(Train_X)
+
+
+
+    # print(np.array(dem_text).shape)
+
+    dem_arr = np.vstack((np.array(dem_text), np.zeros_like(np.array(dem_text))))
+    rep_arr = np.vstack((np.array(rep_text), np.ones_like(np.array(rep_text))))
+    train_list = np.hstack((dem_arr, rep_arr))
+
+    print(train_list.shape)
+
+    Train_X = train_list[0]
+    Train_Y = train_list[1]
+
+    Tfidf_vect = TfidfVectorizer()
+    Tfidf_vect.fit(Train_X)
+
+    Train_X_Tfidf = Tfidf_vect.transform(Train_X)
+
+
+    print(Train_X_Tfidf.shape, Train_Y.shape)
+    print("Training SVM")
+
     clf = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
-    clf.fit(Train_X, Train_Y)
 
-    return clf
+    clf.fit(Train_X_Tfidf, Train_Y)
+    print("Training Complete!")
+    return clf,Tfidf_vect
 
-def predict(clf, test_str):
-    vectorizer = TfidfVectorizer()
-    Test_X = vectorizer.fit_transform(test_str)
+def predict(clf,vectorizer, test_str):
+    print("Predicting")
+    Test_X = vectorizer.transform(test_str)
+    print(Test_X.shape)
     res = clf.predict(Test_X)
     return res
 

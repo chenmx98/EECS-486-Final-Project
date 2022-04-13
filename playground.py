@@ -25,6 +25,6 @@ import predict
 l = ['chrisjollyhale', 'tnsseans', 'let', 'walk', 'walk', 'amp', 'ask', 'dnc', 'tndp', 'recruit', 'candidates', 'run', 'u', 's', 'senate', 'rep']
 
 
-clf= predict.train_svm()
+clf, v= predict.train_svm()
 
-print(predict.predict(clf, l))
+print(predict.predict(clf,v, l))
