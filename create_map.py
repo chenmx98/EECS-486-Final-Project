@@ -3,17 +3,14 @@ import plotly.figure_factory as ff
 import numpy as np
 import pandas as pd
 
-df_sample = pd.read_csv('data/result/.csv')
-df_sample['State FIPS Code'] = df_sample['State FIPS Code'].apply(lambda x: str(x).zfill(2))
-df_sample['County FIPS Code'] = df_sample['County FIPS Code'].apply(lambda x: str(x).zfill(3))
-df_sample['FIPS'] = df_sample['State FIPS Code'] + df_sample['County FIPS Code']
+df_result = pd.read_csv('data/result/Predict_counties.csv').dropna()
 
-colorscale = ["#f7fbff","#ebf3fb","#deebf7","#d2e3f3","#c6dbef","#b3d2e9","#9ecae1",
-              "#85bcdb","#6baed6","#57a0ce","#4292c6","#3082be","#2171b5","#1361a9",
-              "#08519c","#0b4083","#08306b"]
-endpts = list(np.linspace(1, 12, len(colorscale) - 1))
-fips = df_sample['FIPS'].tolist()
-values = df_sample['Unemployment Rate (%)'].tolist()
+df_result["Party"] = df_result["Pred"].map({"0":"Republic", "1":"Democrat"})
+
+colorscale = ["#f1471d", "#4b8bbe"]
+endpts = []
+fips = df_result['FIPS'].tolist()
+values = df_result["Pred"].tolist()
 
 fig = ff.create_choropleth(
     fips=fips, values=values,
@@ -21,9 +18,11 @@ fig = ff.create_choropleth(
     colorscale=colorscale,
     show_state_data=False,
     show_hover=True, centroid_marker={'opacity': 0},
-    asp=2.9, title='USA by Unemployment %',
-    legend_title='% unemployed'
+    asp=2.9, title='Tweet Party Alignment Prediction',
+    legend_title='Party (Blank if valid data is missing)',
+    legend=["Republican", "Democratic"]
 )
 
 fig.layout.template = None
 fig.show()
+fig.write_image("map_result.png")
