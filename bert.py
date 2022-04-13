@@ -3,16 +3,14 @@ import pandas as pd
 import torch
 from transformers import BertModel
 from transformers import BertTokenizer
-from pytorch_transformers import *
-
-from transformers import BertTokenizer
+# from pytorch_transformers import *
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 from torch import nn
 from transformers import BertModel
-from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
+# from pytorch_pretrained_bert import BertTokenizer, BertModel, BertForMaskedLM
 from torch.optim import Adam
 from tqdm import tqdm
 
