@@ -26,27 +26,33 @@ def process_election_result():
         json.dump(elect_dict, outfile, indent=4)
 
 
-def load_data(training_tweets):
-    df = pd.read_csv(training_tweets)
-    df = df[['text', 'party']]
-    Train_X, Test_X, Train_Y, Test_Y = model_selection.train_test_split(df['text'], df['party'], test_size=0.2)
-
+def train_svm():
+    dem_text = open("data/train/dem_terms.txt",'r').read().split(" ")
+    rep_text = open("data/train/rep_terms.txt",'r').read().split(" ")
+    df = pd.DataFrame(columns=["party", "terms"], index=['dem', 'rep'])
+    df.loc["dem"] = pd.Series({"party":"dem","terms": dem_text})
+    df.loc["rep"] = pd.Series({"party":"rep","terms": rep_text})
+    Train_X = df['terms']
+    Train_Y = df['party']
     Encoder = LabelEncoder()
-    Train_Y = Encoder.fit_transform(Train_Y)
-    Test_Y = Encoder.fit_transform(Test_Y)
+    Encoder.fit(Train_Y)
+    Train_Y = Encoder.transform(Train_Y)
+    # Tfidf_vect = TfidfVectorizer(max_features=5000)
+    # Tfidf_vect.fit(df['terms'])
+    # Train_X_Tfidf = Tfidf_vect.transform(Train_X)
+    clf = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+    clf.fit(Train_X, Train_Y)
 
-    return (Train_X, Test_X, Train_Y, Test_Y)
+    return clf
+
+def predict(clf, test_str):
+    vectorizer = TfidfVectorizer()
+    Test_X = vectorizer.fit_transform(test_str)
+    res = clf.predict(Test_X)
+    return res
 
 
-def train_svm(Train_X, Test_X, Train_Y, Test_Y):
-    SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
-    SVM.fit(Train_X, Train_Y)
-    return SVM
+# if __name__ == "__main__":
 
-
-if __name__ == "__main__":
-    training_file = "tweets.csv"
-    (Train_X, Test_X, Train_Y, Test_Y) = load_data(training_file)
-    clf = train_svm((Train_X, Test_X, Train_Y, Test_Y))
 
 

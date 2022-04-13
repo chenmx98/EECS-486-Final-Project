@@ -21,4 +21,10 @@ import predict
 # filepath = "data/train/countypres_2000-2020.csv"
 # df = pd.read_csv(filepath, usecols=["county_fips", "party", "candidatevotes", "totalvotes"])
 # print(df.iloc[0]["county_fips"])
-predict.process_election_result()
+
+l = ['chrisjollyhale', 'tnsseans', 'let', 'walk', 'walk', 'amp', 'ask', 'dnc', 'tndp', 'recruit', 'candidates', 'run', 'u', 's', 'senate', 'rep']
+
+
+clf= predict.train_svm()
+
+print(predict.predict(clf, l))
