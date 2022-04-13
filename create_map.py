@@ -8,8 +8,8 @@ import pandas as pd
 df_result = pd.read_csv('data/result/county_mean.csv').dropna()
 
 
-colorscale = ["#f1471d", "#4b8bbe"]
-endpts = [0.5]
+colorscale = ["#f1471d", "#FF9912", "#4b8bbe"]
+endpts = [0.45, 0.55]
 fips = df_result['FIPS'].tolist()
 values = df_result["Pred"].tolist()
 
