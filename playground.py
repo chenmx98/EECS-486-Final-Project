@@ -29,6 +29,7 @@ import predict
 #
 # print(predict.predict(clf,v, l))
 
+# df = pd.read_csv("data/result/Predict_counties.csv").dropna()
 df = pd.read_csv("data/result/Predict_counties.csv").dropna()
 
 m = df.groupby("FIPS")["Pred"].mean()

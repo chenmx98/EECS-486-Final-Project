@@ -9,6 +9,7 @@ from sklearn import model_selection
 from sklearn.preprocessing import LabelEncoder
 from sklearn import svm
 from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 from tqdm import tqdm
 
 def process_election_result():
@@ -73,7 +74,7 @@ def predict():
 
     df_pred["Pred"] = clf.predict(Pred_X_Tfidf)
     print("Predicting complete")
-    df_pred.to_csv("Predict_counties.csv")
+    df_pred.to_csv("Predict_counties_svm.csv")
 
 
     print(Train_Y)
@@ -100,9 +101,47 @@ def predict():
 #     return res_score
 
 
+
+def predict_random_forest():
+
+    df_train = pd.read_csv("Debate2020/party_transcript.csv", names=["Party","Text"])
+    df_pred = pd.read_csv("sentence_fip.csv", names=["FIPS", "Text"])
+
+
+    Train_X, Test_X, Train_Y, Test_Y = model_selection.train_test_split(df_train['Text'], df_train['Party'],
+                                                                        test_size=0.2)
+
+    Pred_X = df_pred["Text"]
+
+    Encoder = LabelEncoder()
+    Encoder.fit(Train_Y)
+    Train_Y = Encoder.transform(Train_Y)
+    Test_Y = Encoder.transform(Test_Y)
+
+    Tfidf_vect = TfidfVectorizer(max_features=5000)
+    Tfidf_vect.fit(df_train['Text'])
+
+    Train_X_Tfidf = Tfidf_vect.transform(Train_X)
+    Test_X_Tfidf = Tfidf_vect.transform(Test_X)
+    Pred_X_Tfidf = Tfidf_vect.transform(Pred_X)
+    clf = RandomForestClassifier(max_depth=3, random_state=486)
+    clf.fit(Train_X_Tfidf, Train_Y)
+    print("Training Complete!")
+    predictions_SVM = clf.predict(Test_X_Tfidf)
+    print("Random Forest Accuracy Score -> ", accuracy_score(predictions_SVM, Test_Y) * 100)
+
+    df_pred["Pred"] = clf.predict(Pred_X_Tfidf)
+    print("Predicting complete")
+    df_pred.to_csv("Predict_counties_rf.csv")
+
+
+    print(Train_Y)
+
+
 if __name__ == "__main__":
 
-    predict()
+    # predict()
+    predict_random_forest()
     # clf, v = train_svm()
     #
     # testfile = open('token_with_fip.txt', "r")
