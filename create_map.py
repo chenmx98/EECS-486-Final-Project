@@ -3,12 +3,13 @@ import plotly.figure_factory as ff
 import numpy as np
 import pandas as pd
 
-df_result = pd.read_csv('data/result/Predict_counties.csv').dropna()
+# df_result = pd.read_csv('data/result/Predict_counties.csv').dropna()
+# df_result["Party"] = df_result["Pred"].map({"0":"Republic", "1":"Democrat"})
+df_result = pd.read_csv('data/result/county_mean.csv').dropna()
 
-df_result["Party"] = df_result["Pred"].map({"0":"Republic", "1":"Democrat"})
 
 colorscale = ["#f1471d", "#4b8bbe"]
-endpts = []
+endpts = [0.5]
 fips = df_result['FIPS'].tolist()
 values = df_result["Pred"].tolist()
 
@@ -20,7 +21,6 @@ fig = ff.create_choropleth(
     show_hover=True, centroid_marker={'opacity': 0},
     asp=2.9, title='Tweet Party Alignment Prediction',
     legend_title='Party (Blank if valid data is missing)',
-    legend=["Republican", "Democratic"]
 )
 
 fig.layout.template = None

@@ -22,9 +22,14 @@ import predict
 # df = pd.read_csv(filepath, usecols=["county_fips", "party", "candidatevotes", "totalvotes"])
 # print(df.iloc[0]["county_fips"])
 
-l = ['chrisjollyhale', 'tnsseans', 'let', 'walk', 'walk', 'amp', 'ask', 'dnc', 'tndp', 'recruit', 'candidates', 'run', 'u', 's', 'senate', 'rep']
+# l = ['chrisjollyhale', 'tnsseans', 'let', 'walk', 'walk', 'amp', 'ask', 'dnc', 'tndp', 'recruit', 'candidates', 'run', 'u', 's', 'senate', 'rep']
+#
+#
+# clf, v= predict.train_svm()
+#
+# print(predict.predict(clf,v, l))
 
+df = pd.read_csv("data/result/Predict_counties.csv").dropna()
 
-clf, v= predict.train_svm()
-
-print(predict.predict(clf,v, l))
+m = df.groupby("FIPS")["Pred"].mean()
+m.to_csv("county_mean.csv")
