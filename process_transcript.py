@@ -92,7 +92,7 @@ if __name__ == '__main__':
             
 
 
-    with open("party_transcript.txt", 'w') as csvfile: 
+    with open("party_transcript.csv", 'w') as csvfile: 
     # creating a csv writer object 
         csvwriter = csv.writer(csvfile) 
         
