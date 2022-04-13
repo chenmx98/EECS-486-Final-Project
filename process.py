@@ -143,32 +143,52 @@ def process_tweets(tweet):
 
 
 if __name__ == '__main__':
-
-    # process_county()
-    df = pd.read_csv("County_with_fips.csv") 
-    count = 0
-    words_county = {}
+    dict = {}
+    df = pd.read_csv('County_with_fips.csv')
     for i in range(len(df)):
         tweet_token = process_tweets(df.loc[i,'Text'][2:])
-        if df.loc[i,'County'] in words_county:
-            words_county[(df.loc[i,'County'],df.loc[i,'FIPS'])] += tweet_token
-        else:
-            words_county[(df.loc[i,'County'],df.loc[i,'FIPS'])] = tweet_token
-        # count += 1
-        # if count == 9:
-        #     break
+        sentence = ""
+        for x in tweet_token:
+            sentence += x + ' '
+        dict[df.loc[i,'FIPS']] = (sentence)
     
-    # with open('token_with_fip.txt', 'w') as convert_file:
-    #     convert_file.write(json.dumps(words_county))
-    with open("token_with_fip.txt", 'w') as f: 
-        for key, value in words_county.items():
-            output = str(key[1]) + ' '
-            for i in value:
-                output += i + ' '
+    with open('sentence_fip.csv', 'w') as csv_file:  
+        writer = csv.writer(csv_file)
+        for key, value in dict.items():
+            writer.writerow([key, value])
 
-            # f.write(str(key[1]) + ' ' + str(value))
-            # f.write('%s:%s\n' % (key, value))
-            f.write(output + '\n')
+
+
+
+
+
+
+
+    # # process_county()
+    # df = pd.read_csv("County_with_fips.csv") 
+    # count = 0
+    # words_county = {}
+    # for i in range(len(df)):
+    #     tweet_token = process_tweets(df.loc[i,'Text'][2:])
+    #     if df.loc[i,'County'] in words_county:
+    #         words_county[(df.loc[i,'County'],df.loc[i,'FIPS'])] += tweet_token
+    #     else:
+    #         words_county[(df.loc[i,'County'],df.loc[i,'FIPS'])] = tweet_token
+    #     # count += 1
+    #     # if count == 9:
+    #     #     break
+    
+    # # with open('token_with_fip.txt', 'w') as convert_file:
+    # #     convert_file.write(json.dumps(words_county))
+    # with open("token_with_fip.txt", 'w') as f: 
+    #     for key, value in words_county.items():
+    #         output = str(key[1]) + ' '
+    #         for i in value:
+    #             output += i + ' '
+
+    #         # f.write(str(key[1]) + ' ' + str(value))
+    #         # f.write('%s:%s\n' % (key, value))
+    #         f.write(output + '\n')
     
 
     
