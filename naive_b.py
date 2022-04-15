@@ -94,9 +94,9 @@ def testNaiveBayes(word_county, class_probability, word_conditional_dem, word_co
         # print(dem_prob)
         # print(rep_prob)
         if dem_prob > rep_prob:
-            dem_or_rep[county] = "DEMOCRAT"
+            dem_or_rep[county] = "0"
         else:
-            dem_or_rep[county] = "REPUBLICAN"
+            dem_or_rep[county] = "1"
     return dem_or_rep
 
 
@@ -131,7 +131,10 @@ def main():
     result = testNaiveBayes(words_county, class_probability, word_conditional_dem, word_conditional_rep, vocab_size, lf,
                             lt)
     # print(result)
-    print(process_validation(result))
+    # print(process_validation(result))
+    with open("data/result/" + 'naive_result','w') as out:
+        for i in result:
+            out.write(i + ' ' + result[i] + '\n')
 
 
 
