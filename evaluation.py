@@ -38,7 +38,8 @@ def process_validation(model_data):
 
 if __name__ == '__main__':
 
-    df = pd.read_csv("Predict_counties.csv").dropna()
+    # df = pd.read_csv("Predict_counties.csv").dropna()
+    df = pd.read_csv("data/result/prediction_bert.csv").dropna()
     ls = []
     for index, row in df.iterrows():
         if (row["Pred"] == 0):

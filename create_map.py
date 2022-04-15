@@ -5,7 +5,10 @@ import pandas as pd
 
 # df_result = pd.read_csv('data/result/Predict_counties.csv').dropna()
 # df_result["Party"] = df_result["Pred"].map({"0":"Republic", "1":"Democrat"})
-df_result = pd.read_csv('data/result/county_mean.csv').dropna()
+df_result = pd.read_csv('data/result/county_mean_svm.csv').dropna()
+# df_result = pd.read_csv('data/result/prediction_bert.csv').dropna()
+# df_result = pd.read_csv('data/result/naive_result.csv').dropna()
+
 
 
 colorscale = ["#f1471d", "#FF9912", "#4b8bbe"]
