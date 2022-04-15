@@ -132,7 +132,7 @@ def main():
                             lt)
     # print(result)
     # print(process_validation(result))
-    with open("data/result/" + 'naive_result','w') as out:
+    with open("data/result/" + 'naive_result.csv','w') as out:
         for i in result:
             out.write(i + ' ' + result[i] + '\n')
 
